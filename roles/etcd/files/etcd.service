@@ -1,0 +1,14 @@
+[Unit]
+Description=etcd2
+After=network.target
+
+[Service]
+EnvironmentFile=/etc/etcd/etcd.conf
+ExecStart=/usr/local/bin/etcd
+Restart=always
+RestartSec=10s
+TimeoutStartSec=0
+LimitNOFILE=40000
+
+[Install]
+WantedBy=multi-user.target

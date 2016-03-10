@@ -1,0 +1,38 @@
+---
+- set_fact: 
+    etcd_version: "v2.0.12"
+    etcd_download_dir: "/tmp/.ansible/files"
+
+#- name: create download dir
+#  file: "path={{ etcd_download_dir }} state=directory"
+
+- unarchive:
+  #src: "https://github.com/coreos/etcd/releases/download/{{ etcd_version }}/etcd-{{ etcd_version }}-linux-amd64.tar.gz"
+    src: "../files/etcd-{{ etcd_version }}-linux-amd64.tar.gz"
+    dest: /usr/local
+    copy: yes
+
+- file:
+    src: /usr/local/etcd-{{ etcd_version }}-linux-amd64/{{ item }}
+    dest: /usr/local/bin/{{ item }}
+    state: link
+  with_items:
+    - etcd
+    - etcdctl
+
+#- copy: src=etcd.upstart dest=/etc/init/etcd.conf state=absent
+
+- file: path="/etc/etcd" state=directory
+
+- file: "path={{ etcd_data_dir }} state=directory"
+
+- template: src=etcd.conf.j2 dest=/etc/etcd/etcd.conf
+  notify:
+    - restart etcd
+
+- copy: src=etcd.service dest=/etc/systemd/system
+  notify:
+    - reload systemd
+    - restart etcd
+
+# vim:ft=ansible:

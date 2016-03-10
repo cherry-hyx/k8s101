@@ -1,0 +1,8 @@
+---
+- hosts: etcd
+  become: yes
+  roles:
+    - etcd
+  tags:
+    - etcd
+# vim:ft=ansible:
