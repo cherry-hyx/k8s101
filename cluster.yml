@@ -5,4 +5,11 @@
     - etcd
   tags:
     - etcd
+
+- hosts: nodes
+  become: yes
+  roles:
+    - docker
+  tags:
+    - nodes
 # vim:ft=ansible:
