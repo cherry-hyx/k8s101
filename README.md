@@ -22,11 +22,15 @@ ansible kube-master -a "journalctl -u etcd" -s
 ansible kube-master -a "etcdctl cluster-health" -s
 ```
 
-###install docker on nodes
+###install flanneld-docker on nodes
+notice docker0 and flannel.1 inet address should be on same subnet
 ```
 ansiblei-playbook cluster --tags=nodes
 
 ansible nodes -a "docker --version" -s
+
+ansible nodes -a "ip a" -s
+
 ```
 
 ###gluster operations
