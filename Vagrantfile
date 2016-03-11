@@ -7,6 +7,7 @@
 # you're doing.
 
 $num_nodes = (ENV['NUM_NODES'] || 2).to_i
+$num_glusters = (ENV['NUM_NODES'] || 2).to_i
 
 Vagrant.configure(2) do |config|
   # The most common configuration options are documented and commented below.
@@ -41,11 +42,26 @@ Vagrant.configure(2) do |config|
     end
   end
 
+  glusters = Array.new()
+
+  $num_glusters.times do |i|
+    name = "gluster-node-#{i+1}"
+    glusters.push(name)
+    config.vm.define "#{name}" do |machine|
+      machine.vm.hostname = name
+      machine.vm.network "private_network", ip: "192.168.20.#{10+i}"
+      machine.vm.provider :virtualbox do |vb, override|
+        set_vbox(vb, override, 256)
+      end
+    end
+  end 
+
   groups = {
     :etcd => ["kube-master"],
     :masters => ["kube-master"],
     :nodes => nodes,
-    :'all_groups:children' => ["etcd", "masters", "nodes"]
+    :glusters => glusters,
+    :'all_groups:children' => ["etcd", "masters", "nodes", "glusters"]
   }
 
   config.vm.define "kube-master" do |n|
