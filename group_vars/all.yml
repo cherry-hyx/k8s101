@@ -3,3 +3,5 @@ cluster_name: cluster.local
 private_network_iface: eth1
 
 flannel_network: "172.16.0.0/16"
+
+docker_opts: ""

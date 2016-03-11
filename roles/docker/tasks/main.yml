@@ -35,12 +35,15 @@
 
 - name: write docker drop-in
   copy:
-    src: 10-extra-opts.conf
+    src: 10-override.conf
     dest: /etc/systemd/system/docker.service.d/10-extra-opts.conf
   notify:
     - reload systemd
     # - restart docker
 
+- template: src=docker-opts.j2 dest=/etc/default/docker
+  notify:
+    - restart flanneld
 #- debug: var=docker_packages
 
 - apt: "name=docker-engine={{ docker_version }} state=present"
