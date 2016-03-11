@@ -31,6 +31,15 @@
 - command: apt-cache policy docker-engine
   register: docker_packages
 
+- file: path="/etc/systemd/system/docker.service.d" state=directory
+
+- copy:
+    src: 10-extra-opts.conf
+    dest: /etc/systemd/system/docker.service.d/10-extra-opts.conf
+  notify:
+    - reload system
+    - restart docker
+
 #- debug: var=docker_packages
 
 - apt: "name=docker-engine={{ docker_version }} state=present"
