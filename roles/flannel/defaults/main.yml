@@ -1,0 +1,3 @@
+---
+flannel_iface: "{{ private_network_iface }}"
+flannel_etcd_endpoints: "{% for node in groups['etcd'] %}http://{{ node }}:2379{% if not loop.last %},{% endif %}{% endfor %}"

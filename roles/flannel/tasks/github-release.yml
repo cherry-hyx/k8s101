@@ -1,0 +1,31 @@
+---
+- set_fact:
+    flannel_version: 0.5.5
+
+- unarchive:
+  #https://github.com/coreos/flannel/releases/download/{{ flannel_version }}/flannel-{{ flannel_version }}-linux-amd64.tar.gz
+    src: "../files/flannel-{{ flannel_version }}-linux-amd64.tar.gz"
+    dest: /usr/local
+    copy: yes
+
+- file:
+    src: /usr/local/flannel-{{ flannel_version }}/{{ item }}
+    dest: /usr/local/bin/{{ item }}
+    state: link
+  with_items:
+    - "flanneld"
+    - "mk-docker-opts.sh"
+
+- file: "path={{ item }} state=directory"
+  with_items:
+    - "/run"
+    - "/etc/flanneld"
+
+- template: src=flanneld.conf.j2 dest=/etc/flanneld/flanneld.conf
+  notify:
+    - restart flanneld
+
+- copy: src=flanneld.service dest=/etc/systemd/system
+  notify:
+    - reload systemd
+    - restart flanneld

@@ -1,7 +1,10 @@
 ---
 - name: reload systemd
-  command: systemctl daemon-reload
+  command: "systemctl daemon-reload"
+  register: reload_result
 
-- name: restart docker
-  service: name=docker state=restarted
-  when: docker_started.changed == false
+- debug: var=reload_result
+
+# - name: restart docker
+#   service: name=docker state=restarted
+#   when: docker_started.changed == false

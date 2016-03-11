@@ -1,0 +1,16 @@
+[Unit]
+Description=flannel
+After=network.target
+
+[Service]
+Restart=always
+RestartSec=5
+EnvironmentFile=/etc/flanneld/flanneld.conf
+ExecStart=/usr/local/bin/flanneld --ip-masq=true \
+  --etcd-endpoints=${FLANNEL_ETCD_ENDPOINTS} \
+  --etcd-prefix=${FLANNEL_ETCD_PREFIX} \
+  --iface=${FLANNEL_IFACE}
+ExecStartPost=/usr/local/bin/mk-docker-opts.sh -d /run/flannel_docker_opts.env -i
+
+[Install]
+WantedBy=multi-user.target

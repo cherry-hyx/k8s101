@@ -1,0 +1,15 @@
+---
+- set_fact:
+    flannel_config_json: "'{ \"Network\": \"{{ flannel_network }}\", \"Backend\": { \"Type\": \"vxlan\" } }'"
+
+- debug: var=flannel_config_json
+
+- command: "/usr/local/bin/etcdctl get {{ cluster_name }}/network/config"
+  delegate_to: "{{ groups['etcd'][0] }}"
+  changed_when: false
+  register: etcdctl_result
+
+- name: "etcdctl set {{ cluster_name }}/network/config {{ flannel_config_json }}"
+  command: "/usr/local/bin/etcdctl set {{ cluster_name }}/network/config {{ flannel_config_json }}"
+  delegate_to: "{{ groups['etcd'][0] }}"
+  when: not flannel_config_json in etcdctl_result.stdout_lines

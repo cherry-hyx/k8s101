@@ -1,7 +1,6 @@
 ---
 - include: github-release.yml
 
-
 - service: name=etcd enabled=yes
 
 - service: name=etcd state=started

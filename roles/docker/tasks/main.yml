@@ -33,12 +33,13 @@
 
 - file: path="/etc/systemd/system/docker.service.d" state=directory
 
-- copy:
+- name: write docker drop-in
+  copy:
     src: 10-extra-opts.conf
     dest: /etc/systemd/system/docker.service.d/10-extra-opts.conf
   notify:
-    - reload system
-    - restart docker
+    - reload systemd
+    # - restart docker
 
 #- debug: var=docker_packages
 
@@ -46,5 +47,5 @@
 
 - service: name=docker enabled=yes
 
-- service: name=docker state=started
+- service: name=docker state=stopped
   register: docker_started

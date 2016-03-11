@@ -1,0 +1,12 @@
+---
+- include: config-etcd.yml
+
+- include: github-release.yml
+
+- service: name=flanneld enabled=yes
+  # register: flanneld_started
+
+- name: start service flanneld
+  command: /bin/true
+  notify:
+    - restart flanneld

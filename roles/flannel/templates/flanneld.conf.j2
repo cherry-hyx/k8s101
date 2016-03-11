@@ -1,0 +1,4 @@
+FLANNEL_ETCD_ENDPOINTS="{{ flannel_etcd_endpoints }}"
+FLANNEL_ETCD_PREFIX="/{{ cluster_name }}/network"
+FLANNEL_OPTIONS="{{ flannel_opts | default('') }}"
+FLANNEL_IFACE="{{ flannel_iface | default('') }}"
