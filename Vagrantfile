@@ -20,6 +20,7 @@ Vagrant.configure(2) do |config|
 
   config.ssh.insert_key = false
   config.vm.provider "virtualbox"
+  config.vm.synced_folder ".", "/vagrant", disabled: true
 
 
   def set_vbox(vb, cfg, men)
@@ -37,7 +38,7 @@ Vagrant.configure(2) do |config|
       n.vm.hostname = name
       n.vm.network "private_network", ip: "192.168.10.#{10+i}"
       n.vm.provider :virtualbox do |vb, override|
-        set_vbox(vb, override, 2048)
+        set_vbox(vb, override, 512)
       end
     end
   end

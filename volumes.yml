@@ -1,0 +1,77 @@
+---
+- hosts: glusters
+  become: yes
+
+  roles:
+    - gluster
+  vars:
+    gluster_mount_dir: "/mnt/{{ brick }}"
+    gluster_brick_dir: "/srv/{{ brick }}/brick"
+    gluster_brick_name: "{{ brick }}"
+
+  tasks:
+    - fail: msg="opps! try this --extra-vars \"brick=vol1\""
+      when: brick is undefined
+
+    - debug: var=gluster_brick_dir var=gluster_mount_dir
+    - name: Ensure Gluster brick and mount directories exist.
+      file: "path={{ item }} state=directory mode=0775"
+      with_items:
+        - "{{ gluster_brick_dir }}"
+        - "{{ gluster_mount_dir }}"
+      tags:
+        - create
+
+    - name: Configure Gluster volume.
+      gluster_volume:
+        state: present
+        name: "{{ gluster_brick_name }}"
+        brick: "{{ gluster_brick_dir }}"
+        replicas: 2
+        cluster: "{{ groups.glusters | join(',') }}"
+        host: "{{ inventory_hostname }}"
+        force: yes
+      run_once: true
+      tags:
+        - create
+
+    - name: Ensure Gluster volume is mounted.
+      mount:
+        name: "{{ gluster_mount_dir }}"
+        src: "{{ inventory_hostname }}:/{{ gluster_brick_name }}"
+        fstype: glusterfs
+        opts: "defaults,_netdev"
+        state: mounted
+      tags:
+        - create
+
+    - name: destroy gluster volume.
+      gluster_volume:
+        state: absent
+        name: "{{ gluster_brick_name }}"
+        brick: "{{ gluster_brick_dir }}"
+        replicas: 2
+        cluster: "{{ groups.glusters | join(',') }}"
+        host: "{{ inventory_hostname }}"
+        force: yes
+      run_once: true
+      tags:
+        - rm
+
+    - name: Ensure Gluster volume is removed.
+      mount:
+        name: "{{ gluster_mount_dir }}"
+        src: "{{ inventory_hostname }}:/{{ gluster_brick_name }}"
+        fstype: glusterfs
+        opts: "defaults,_netdev"
+        state: absent
+      tags:
+        - rm
+
+    - name: remove gluster brick and mount directories.
+      file: "path={{ item }} state=absent"
+      with_items:
+        - "{{ gluster_brick_dir }}"
+        - "{{ gluster_mount_dir }}"
+      tags:
+        - rm

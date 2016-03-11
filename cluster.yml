@@ -14,4 +14,12 @@
     - flannel
   tags:
     - nodes
+
+- hosts: glusters
+  become: yes
+  roles:
+    - gluster
+  tags:
+    - glusters
+
 # vim:ft=ansible:
