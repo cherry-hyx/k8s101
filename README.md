@@ -1,5 +1,9 @@
 # k8s101
 
+###kubernetes recommand packages
+- docker [1.7.1](http://kubernetes.io/v1.1/docs/getting-started-guides/docker-multinode.html)
+- etcd [2.0.12](http://kubernetes.io/v1.1/docs/getting-started-guides/scratch.html#selecting-images)
+
 ###provison stage
 ```
 vagrant up
