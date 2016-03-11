@@ -8,8 +8,11 @@
   delegate_to: "{{ groups['etcd'][0] }}"
   changed_when: false
   register: etcdctl_result
+  ignore_errors: yes
 
 - name: "etcdctl set {{ cluster_name }}/network/config {{ flannel_config_json }}"
   command: "/usr/local/bin/etcdctl set {{ cluster_name }}/network/config {{ flannel_config_json }}"
   delegate_to: "{{ groups['etcd'][0] }}"
-  when: not flannel_config_json in etcdctl_result.stdout_lines
+  register: etcdctl_result
+  changed_when: flannel_config_json in etcdctl_result.stdout_lines
+  when: etcdctl_result.rc != 0 or not flannel_config_json in etcdctl_result.stdout_lines
