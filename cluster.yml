@@ -22,12 +22,14 @@
   tags:
     - glusters
 
-- hosts: masters
+- hosts:
+    - masters
+    - nodes
   become: yes
   roles:
     - tls
   tags:
-    - masters
+    - k8s
 
 #set_fact:
 #  ansible_default_ipv4: "{{ 'ansible_' + private_network_iface['ipv4'] }}"

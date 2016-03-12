@@ -1,0 +1,25 @@
+---
+- file: path=/tmp/k8s state=directory
+- unarchive: >
+        src=https://storage.googleapis.com/kubernetes-release/easy-rsa/easy-rsa.tar.gz
+        dest="/tmp/k8s"
+        copy=no
+        creates=/tmp/k8s/easy-rsa-master/easyrsa3
+- set_fact:
+    sans: "IP:192.168.10.80,DNS:kubernetes,DNS:kubernetes.default,DNS:kubernetes.default.svc,DNS:kubernetes.default.svc.{{ dns_domain}},DNS:{{ inventory_hostname }}"
+- debug: var=sans
+#- template: src=make-ca-cert.sh.j2 dest=/tmp/k8s/easy-rsa-master/easyrsa3/make-ca-cert.sh mode=0774
+- file: path=/tmp/k8s/easy-rsa-master/easyrsa3/pki state=absent
+
+- command: "./easyrsa {{ item }}"
+  args:
+    chdir: "/tmp/k8s/easy-rsa-master/easyrsa3"
+  register: easyrsa_result
+  with_items:
+    - "init-pki"
+    - "--batch --req-cn=\"192.168.10.80\" build-ca nopass"
+    - "--subject-alt-name=\"{{ sans }}\" build-server-full \"{{ inventory_hostname }}\" nopass"
+    - "build-client-full kubelet nopass"
+    - "build-client-full kubecfg nopass"
+
+- debug: var=easyrsa_result

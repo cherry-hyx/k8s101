@@ -1,0 +1,16 @@
+---
+- file: path=/var/lib/kube-apiserver state=directory
+- copy: >
+    src=gen-token.sh
+    dest=/var/lib/kube-apiserver/
+    mode=u+x
+- command: /var/lib/kube-apiserver/gen-token.sh {{ item[0]}}-{{ item[1]}}
+  with_nested:
+    - ["system:controller_manager", "system:scheduler", "system:kubectl"]
+    - "{{ groups.masters }}"
+  register: gentoken_result
+  changed_when: "'Added' in gentoken_result.stdout"
+- debug: var=gentoken_result
+#- raw: printf $(dd if=/dev/urandom bs=128 count=1 2>/dev/null | base64 | tr -d "=+/" | dd bs=32 count=1 2>/dev/null);
+#  register: token_result
+#- debug: var=token_result

@@ -1,1 +1,2 @@
 master_ip: 192.168.10.80
+kube_cert_dir: /etc/kubernetes/ssl
