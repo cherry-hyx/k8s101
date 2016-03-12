@@ -2,15 +2,6 @@
 - set_fact:
     docker_version: "1.7.1-0~jessie"
 
-- apt_key:
-    keyserver: hkp://p80.pool.sks-keyservers.net:80
-    id: 58118E89F3A912897C070ADBF76221572C52609D
-    state: present
-
-- apt_repository:
-    repo: "deb https://apt.dockerproject.org/repo debian-jessie main"
-    #filename: "docker.list"
-
 - name: check apt last update
   stat: path=/var/cache/apt
   register: apt_cache_stat
@@ -28,11 +19,20 @@
     - "apt-transport-https"
     - "ca-certificates"
 
+- apt_key:
+    keyserver: hkp://p80.pool.sks-keyservers.net:80
+    id: 58118E89F3A912897C070ADBF76221572C52609D
+    state: present
+
+- apt_repository:
+    repo: "deb https://apt.dockerproject.org/repo debian-jessie main"
+    #filename: "docker.list"
+
 - command: apt-cache policy docker-engine
   register: docker_packages
 
 - name: "install docker-engine={{ docker_version }}"
-  apt: "name=docker-engine={{ docker_version }} state=present"
+  apt: "name=docker-engine={{ docker_version }} state=present update_cache=yes"
 
 #- service: name=docker enabled=yes
 
