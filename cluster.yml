@@ -5,7 +5,7 @@
     - etcd
   tags:
     - etcd
-    - master
+    - masters
 
 - hosts: nodes
   become: yes
@@ -22,4 +22,13 @@
   tags:
     - glusters
 
+- hosts: masters
+  become: yes
+  roles:
+    - tls
+  tags:
+    - masters
+
+#set_fact:
+#  ansible_default_ipv4: "{{ 'ansible_' + private_network_iface['ipv4'] }}"
 # vim:ft=ansible:
