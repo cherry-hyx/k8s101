@@ -8,8 +8,8 @@
 - set_fact:
     sans: "IP:192.168.10.80,DNS:kubernetes,DNS:kubernetes.default,DNS:kubernetes.default.svc,DNS:kubernetes.default.svc.{{ dns_domain}},DNS:{{ inventory_hostname }}"
 - debug: var=sans
-- template: src=make-ca-cert.sh.j2 dest=/tmp/k8s/easy-rsa-master/easyrsa3/make-ca-cert.sh mode=0774
-- file: path=/tmp/k8s/easy-rsa-master/easyrsa3/pki state=absent
+#- template: src=make-ca-cert.sh.j2 dest=/tmp/k8s/easy-rsa-master/easyrsa3/make-ca-cert.sh mode=0774
+#- file: path=/tmp/k8s/easy-rsa-master/easyrsa3/pki state=absent
 
 - command: "./easyrsa {{ item }}"
   args:
