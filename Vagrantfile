@@ -19,7 +19,9 @@ Vagrant.configure(2) do |config|
   config.vm.box = "debian/jessie64"
 
   config.ssh.insert_key = false
-  config.vm.provider "virtualbox"
+  config.vm.provider "virtualbox" do |vb|
+    vb.linked_clone = true
+  end
   config.vm.synced_folder ".", "/vagrant", disabled: true
 
 
@@ -50,6 +52,7 @@ Vagrant.configure(2) do |config|
     glusters.push(name)
     config.vm.define "#{name}" do |machine|
       machine.vm.hostname = name
+#     machine.vm.box = "geerlingguy/ubuntu1404"
       machine.vm.network "private_network", ip: "192.168.20.#{10+i}"
       machine.vm.provider :virtualbox do |vb, override|
         set_vbox(vb, override, 256)
