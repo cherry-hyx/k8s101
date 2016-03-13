@@ -13,6 +13,11 @@
     - fail: msg="opps! try this --extra-vars \"brick=vol1\""
       when: brick is undefined
 
+    - service: name=glusterfs-server state=started
+      tags:
+        - create
+        - rm
+
     - debug: var=gluster_brick_dir var=gluster_mount_dir
     - name: Ensure Gluster brick and mount directories exist.
       file: "path={{ item }} state=directory mode=0775"
@@ -29,7 +34,6 @@
         brick: "{{ gluster_brick_dir }}"
         replicas: 2
         cluster: "{{ groups.glusters | join(',') }}"
-        host: "{{ inventory_hostname }}"
         force: yes
       run_once: true
       tags:

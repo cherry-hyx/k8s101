@@ -1,4 +1,4 @@
 ---
-dependencies:
-  - { role: geerlingguy.firewall }
-  - { role: geerlingguy.glusterfs }
+#dependencies:
+#  - { role: geerlingguy.firewall }
+# - { role: geerlingguy.glusterfs }

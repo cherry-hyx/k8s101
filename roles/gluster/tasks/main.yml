@@ -1,1 +1,32 @@
 ---
+- name: check apt last update
+  stat: path=/var/cache/apt
+  register: apt_cache_stat
+- name: update apt if needed
+  apt: update_cache=yes
+  when: ansible_date_time.epoch|float - apt_cache_stat.stat.mtime > 60*60*12
+#- apt_key: >
+#    url=http://download.gluster.org/pub/gluster/glusterfs/3.7/3.7.8/pub.key
+#    state=present
+#
+#- apt_repository:
+#    repo: "deb http://download.gluster.org/pub/gluster/glusterfs/3.7/3.7.8/Debian/jessie/apt jessie main"
+#
+- apt: "name={{ item }} state=present"
+  with_items:
+    - "glusterfs-server"
+    - "glusterfs-client"
+- wait_for: host={{ item }} port=24007 delay=5 state=drained
+  with_items: groups['glusters']
+  when: item != inventory_hostname
+  changed_when: false
+
+- service: name=glusterfs-server state=started enabled=yes
+- command: gluster peer probe {{ item }}
+  with_items: groups['glusters']
+  when: item != inventory_hostname
+  register: probe_result
+  until: "{{ probe_result.stdout.find(\"peer probe: success\") != -1 }}"
+  retries: 3
+  delay: 10
+- debug: var=probe_result
