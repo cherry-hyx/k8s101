@@ -35,6 +35,10 @@ ansible nodes -a "ip a" -s
 
 ###gluster operations
 ```
+ansible glusters -a "gluster peer status" -s
+
 ansible-playbook volumes.yml --tags=create --extra-vars "brick=volume1"
 ansible-playbook volumes.yml --tags=rm --extra-vars "brick=volume1"
+
+ansible glusters -a "gluster volume info" -s
 ```
