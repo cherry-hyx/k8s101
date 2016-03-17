@@ -19,6 +19,7 @@
   become: yes
   roles:
     - master
+    - "kube-addons"
   tags:
     - masters
 

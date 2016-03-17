@@ -7,7 +7,7 @@
 # determine token accounts
 
 - set_fact: 
-    accounts: "{{ accounts }} + [ 'controller-manager', 'scheduler', 'kubectl' ]"
+    accounts: "{{ accounts }} + [ 'controller-manager', 'scheduler', 'kubectl', 'system:dns' ]"
   name: add master token accounts
   when: master0
 
@@ -35,12 +35,12 @@
   name: "{{ kube_auth_dir }} directory present"
   when: master0
 
-# - file: path={{ token_auth_file }} state=touch
-#   name: "touch {{ token_auth_file }}"
+# - file: path={{ known_tokens }} state=touch
+#   name: "touch {{ known_tokens }}"
 #   when: master0
 
 - shell: |
-    account=$(grep {{ item }} {{ token_auth_file }} 2>/dev/null)
+    account=$(grep {{ item }} {{ known_tokens }} 2>/dev/null)
     if [ -n "$account" ]
     then
       token=`echo $account | awk -F, '{print $1}'`
@@ -65,13 +65,13 @@
   name: "map tokens.results as json"
 #- debug: var=tokens
 
-# - template: src=tokens.cvs.j2 dest={{ token_auth_file }}
-#   name: "update {{ token_auth_file }}"
+# - template: src=tokens.cvs.j2 dest={{ known_tokens }}
+#   name: "update {{ known_tokens }}"
 #   delegate_facts: true
 #   delegate_to: "{{ groups['masters'][0] }}"
 
 - lineinfile: >
-    dest="{{ token_auth_file }}"
+    dest="{{ known_tokens }}"
     line="{{ item.csv }}"
     regexp="{{ item.name }}"
     create=yes

@@ -1,5 +1,5 @@
 KUBE_API_ADDRESS="--bind-address={{ private_host_ipv4 }} --secure-port={{ kube_api_secure_port }}"
 KUBE_ETCD_SERVERS="--etcd-servers={% for node in groups['etcd'] %}http://{{ node }}:2379{% if not loop.last %},{% endif %}{% endfor %}"
 KUBE_SERVICE_ADDRESSES="--service-cluster-ip-range={{ service_cluster_ip_range }}"
-KUBE_TLS="--tls-cert-file={{ kube_cert_dir }}/server.crt --tls-private-key-file={{ kube_cert_dir }}/server.key --client-ca-file={{ kube_cert_dir }}/ca.crt --token-auth-file={{ token_auth_file }}"
+KUBE_TLS="--tls-cert-file={{ kube_cert_dir }}/server.crt --tls-private-key-file={{ kube_cert_dir }}/server.key --client-ca-file={{ kube_cert_dir }}/ca.crt --token-auth-file={{ known_tokens }}"
 KUBE_API_ARGS="--allow-privileged=true"

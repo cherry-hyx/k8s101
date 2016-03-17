@@ -14,6 +14,13 @@ docker_opts: ""
 
 kube_cert_dir: /etc/kubernetes/ssl
 kube_auth_dir: /etc/kubernetes/auth
-token_auth_file: "{{ kube_auth_dir }}/tokens.csv"
+known_tokens: "{{ kube_auth_dir }}/known_tokens.csv"
 
 kube_manifest_dir: /etc/kubernetes/manifests
+kube_addons_dir: /etc/kubernetes/addons
+
+pillar: >
+  dns_replicas=1
+  dns_domain="{{ dns_domain }}"
+  
+# vim:ft=ansible:

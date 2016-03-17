@@ -2,9 +2,10 @@
 - set_fact:
     flannel_config_json: "'{ \"Network\": \"{{ flannel_network }}\", \"Backend\": { \"Type\": \"vxlan\" } }'"
 
-- debug: var=flannel_config_json
+#- debug: var=flannel_config_json
 
-- command: "/usr/local/bin/etcdctl get {{ dns_domain }}/network/config"
+- shell: |
+    /usr/local/bin/etcdctl get {{ dns_domain }}/network/config
   delegate_to: "{{ groups['etcd'][0] }}"
   changed_when: false
   register: etcdctl_result

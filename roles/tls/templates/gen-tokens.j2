@@ -1,4 +1,4 @@
-account=$(grep {{ item }} {{ token_auth_file }} )
+account=$(grep {{ item }} {{ known_tokens }} )
 if [ -n "$account" ]
 then
   token=`echo $account | awk -F, '{print $1}'`

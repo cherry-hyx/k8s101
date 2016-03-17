@@ -1,0 +1,16 @@
+---
+- file: path={{ kube_addons_dir }} state=directory mode=0775
+
+- get_url:
+    url="{{ item }}"
+    dest="{{ kube_addons_dir }}/"
+    force=yes
+    validate_certs=no
+  with_items:
+    - "https://raw.githubusercontent.com/kubernetes/kubernetes/master/cluster/saltbase/salt/kube-addons/namespace.yaml"
+    - "https://raw.githubusercontent.com/kubernetes/kubernetes/master/cluster/saltbase/salt/kube-addons/kube-addons.sh"
+    - "https://github.com/kubernetes/kubernetes/blob/master/cluster/saltbase/salt/kube-addons/kube-addon-update.sh"
+
+- template:
+    src=kube-addons.service.j2 
+    dest=/etc/systemd/system/kube-addons.service
