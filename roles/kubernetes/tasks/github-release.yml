@@ -29,14 +29,14 @@
   when: kubernetes_dir.stat.exists == false
 
 - local_action:
-    stat path="{{ kubernetes_dir.stat.path }}/server/kubernetes/server/bin"
+    stat path="downloads/kubernetes/server/kubernetes/server/bin"
   register: server_bin
 
 #- debug: var=server_bin
 - name: "extract Kubernetes binaries"
   local_action:
     unarchive
-      src="{{ kubernetes_dir.stat.path }}/server/kubernetes-server-linux-amd64.tar.gz"
+      src="downloads/kubernetes/server/kubernetes-server-linux-amd64.tar.gz"
       dest="{{ current_pwd.stdout }}/{{ kubernetes_dir.stat.path }}/server"
   when: server_bin.stat.exists == false
 
