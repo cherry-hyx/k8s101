@@ -1,0 +1,5 @@
+---
+kube_api_secure_port: 443
+#kube_apiserver: "{% for master in groups['masters'] %}https://{{ hostvars[master].private_host_ipv4 }}:{{ kube_api_secure_port }}{% if not loop.last %},{% endif %}{% endfor %}"
+
+#kube_apiserver: "https://{{ hostvars[groups['masters'][0]].private_host_ipv4 }}:{{ kube_api_secure_port }}"

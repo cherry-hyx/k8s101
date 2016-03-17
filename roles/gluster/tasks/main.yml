@@ -29,4 +29,6 @@
   until: "{{ probe_result.stdout.find(\"peer probe: success\") != -1 }}"
   retries: 3
   delay: 10
-- debug: var=probe_result
+  changed_when: false
+  name: "peer probe each others"
+#- debug: var=probe_result

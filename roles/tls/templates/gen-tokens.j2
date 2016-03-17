@@ -1,0 +1,12 @@
+account=$(grep {{ item }} {{ token_auth_file }} )
+if [ -n "$account" ]
+then
+  token=`echo $account | awk -F, '{print $1}'`
+  key=`echo $account | awk -F, '{print $2}'`
+else
+  token=$(dd if=/dev/urandom bs=128 count=1 2>/dev/null | base64 | tr -d "=+/" | dd bs=32 count=1 2>/dev/null)
+  key="{{ item }}"
+fi
+csv="$token,$key,$key"
+fact="$key: $token"
+echo '{ "csv": "'"$csv"'", "token": "'"$token"'", "name": "'"$key"'" }'

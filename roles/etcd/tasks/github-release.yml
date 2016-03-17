@@ -1,21 +1,44 @@
 ---
 - set_fact: 
     etcd_version: "v2.0.12"
-    etcd_download_dir: "/tmp/.ansible/files"
 
+- local_action:
+    file path=downloads state=directory
+  become: no
+
+- name: "download etcd github release tag {{ etcd_version }}"
+  local_action:
+    get_url
+      url="https://github.com/coreos/etcd/releases/download/{{ etcd_version }}/etcd-{{ etcd_version }}-linux-amd64.tar.gz"
+      dest="downloads/etcd-{{ etcd_version }}-linux-amd64.tar.gz"
+  become: no
+
+- local_action:
+    shell pwd
+  register: current_pwd
+  changed_when: false
+  become: no
+
+- local_action:
+    unarchive
+      src="{{ current_pwd.stdout }}/downloads/etcd-{{ etcd_version }}-linux-amd64.tar.gz"
+      dest="{{ current_pwd.stdout }}/downloads"
+      copy=yes
+  become: no
 #- name: create download dir
 #  file: "path={{ etcd_download_dir }} state=directory"
 
-- unarchive:
-  #src: "https://github.com/coreos/etcd/releases/download/{{ etcd_version }}/etcd-{{ etcd_version }}-linux-amd64.tar.gz"
-    src: "../files/etcd-{{ etcd_version }}-linux-amd64.tar.gz"
-    dest: /usr/local
-    copy: yes
+# - unarchive:
+#   #src: "https://github.com/coreos/etcd/releases/download/{{ etcd_version }}/etcd-{{ etcd_version }}-linux-amd64.tar.gz"
+#     src: "../files/etcd-{{ etcd_version }}-linux-amd64.tar.gz"
+#     dest: /usr/local
+#     copy: yes
 
-- file:
-    src: /usr/local/etcd-{{ etcd_version }}-linux-amd64/{{ item }}
+- name: "copy binaries to /usr/local/bin"
+  copy:
+    src: downloads/etcd-{{ etcd_version }}-linux-amd64/{{ item }}
     dest: /usr/local/bin/{{ item }}
-    state: link
+    mode: "0774"
   with_items:
     - etcd
     - etcdctl

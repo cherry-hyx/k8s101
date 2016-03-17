@@ -1,0 +1,2 @@
+---
+node_bianries: ['kubelet', 'kube-proxy']

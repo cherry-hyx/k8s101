@@ -4,3 +4,6 @@
 .idea
 .vagrant
 *.retry
+*.gz
+downloads
+vars

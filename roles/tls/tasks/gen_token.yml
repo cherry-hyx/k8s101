@@ -1,16 +1,83 @@
 ---
-- file: path=/var/lib/kube-apiserver state=directory
-- copy: >
-    src=gen-token.sh
-    dest=/var/lib/kube-apiserver/
-    mode=u+x
-- command: /var/lib/kube-apiserver/gen-token.sh {{ item[0]}}-{{ item[1]}}
-  with_nested:
-    - ["system:controller_manager", "system:scheduler", "system:kubectl"]
-    - "{{ groups.masters }}"
-  register: gentoken_result
-  changed_when: "'Added' in gentoken_result.stdout"
-- debug: var=gentoken_result
-#- raw: printf $(dd if=/dev/urandom bs=128 count=1 2>/dev/null | base64 | tr -d "=+/" | dd bs=32 count=1 2>/dev/null);
-#  register: token_result
-#- debug: var=token_result
+
+- set_fact:
+    master0: inventory_hostname == groups['masters'][0]
+  name: "determine is master 0"
+
+# determine token accounts
+
+- set_fact: 
+    accounts: "{{ accounts }} + [ 'controller-manager', 'scheduler', 'kubectl' ]"
+  name: add master token accounts
+  when: master0
+
+- set_fact: 
+    accounts: "{{ accounts }} + [ '{{ item }}-{{ inventory_hostname }}' ]"
+  with_items:
+    - "kubelet"
+    - "kube-proxy"
+  name: add  {{ inventory_hostname }} token accounts
+  when: "{{ 'nodes' in group_names }}"
+
+#- debug: var=accounts
+
+# - template:
+#     src: "gen-tokens.j2"
+#     dest: "{{ kube_auth_dir }}/gen-{{ item }}-tokens.sh"
+#     mode: 0774
+#     force: yes
+#   register: tokens
+#   with_items: "{{ accounts }}"
+#   delegate_to: "{{ groups['masters'][0] }}"
+#   name: "generate {{ item }} token into csv and fact formats"
+
+- file: "path={{ kube_auth_dir }} state=directory" 
+  name: "{{ kube_auth_dir }} directory present"
+  when: master0
+
+# - file: path={{ token_auth_file }} state=touch
+#   name: "touch {{ token_auth_file }}"
+#   when: master0
+
+- shell: |
+    account=$(grep {{ item }} {{ token_auth_file }} 2>/dev/null)
+    if [ -n "$account" ]
+    then
+      token=`echo $account | awk -F, '{print $1}'`
+      key=`echo $account | awk -F, '{print $2}'`
+      stat=present
+    else
+      token=$(dd if=/dev/urandom bs=128 count=1 2>/dev/null | base64 | tr -d "=+/" | dd bs=32 count=1 2>/dev/null)
+      key="{{ item }}"
+      stat="generated"
+    fi
+    csv="$token,$key,$key"
+    fact="$key: $token"
+    echo '{ "csv": "'"$csv"'", "token": "'"$token"'", "name": "'"$key"'", "stat": "'"$stat"'" }'
+  register: tokens
+  with_items: "{{ accounts }}"
+  changed_when: tokens.stdout.find('generated') != -1
+  name: generate tokens into csv and fact formats
+  delegate_to: "{{ groups['masters'][0] }}"
+
+- set_fact: 
+    tokens: "{{ tokens.results | map(attribute='stdout')| map('from_json') | list }}"
+  name: "map tokens.results as json"
+#- debug: var=tokens
+
+# - template: src=tokens.cvs.j2 dest={{ token_auth_file }}
+#   name: "update {{ token_auth_file }}"
+#   delegate_facts: true
+#   delegate_to: "{{ groups['masters'][0] }}"
+
+- lineinfile: >
+    dest="{{ token_auth_file }}"
+    line="{{ item.csv }}"
+    regexp="{{ item.name }}"
+    create=yes
+  with_items: "{{ tokens }}"
+  delegate_facts: true
+  delegate_to: "{{ groups['masters'][0] }}"
+
+#- debug: var=tokens
+#- debug: msg="{% for user in tokens if user.name == 'kubectl' %}{{ user.token }}{% endfor %}"

@@ -1,0 +1,21 @@
+---
+
+- name: "assure {{ kube_manifest_dir }} "
+  file: path={{ kube_manifest_dir }} state=directory
+
+- set_fact: "kubelet_token={{ item.token }}"
+  with_items: "{{ tokens }}"
+  when: "item.name == 'kubelet-{{ inventory_hostname }}'"
+  name: "gather kubelet token"
+
+#- debug: var=kubelet_token
+
+- template: "src=kubelet.service.j2 dest=/etc/systemd/system/kubelet.service"
+  notify:
+    - reload systemd
+    - restart node
+
+- template: "src=kubelet.kubeconfig.j2 dest=/etc/kubernetes/kubelet.kubeconfig"
+  notify:
+    - reload systemd
+    - restart node

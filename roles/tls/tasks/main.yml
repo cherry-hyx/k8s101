@@ -1,26 +1,28 @@
 ---
-- name: "generate certs on {{ groups.masters | first }}"
-  include: gen_certs.yml
-  when: inventory_hostname == (groups.masters | first)
 
-- name: read ca.cert
-  slurp: src=/tmp/k8s/easy-rsa-master/easyrsa3/pki/ca.crt
-  register: ca_crt
-  run_once: yes
-  delegate_to: groups.masters | first
+- include: gen_token.yml
+  name: starting generate tokens
+
+# - set_fact: 
+#     tokens: "{{ hostvars[groups['masters'][0]].tokens }}"
+#   when: "{{ 'nodes' in group_names }}"
 
 - file: path={{ kube_cert_dir }} state=directory
+  name: "mkdir {{ kube_cert_dir }} on everywhere"
+
+- name: "generate certs on {{ groups['masters'][0] }}"
+  include: gen_certs.yml
+  when: inventory_hostname == groups['masters'][0]
+
+- name: read ca.crt
+  slurp: src=/tmp/k8s/easy-rsa-master/easyrsa3/pki/ca.crt
+  register: ca_crt
+  delegate_to: "{{ groups['masters'][0] }}"
 
 - copy: >
     content={{ ca_crt.content|b64decode }}
     dest={{ kube_cert_dir }}/ca.crt
-- include: gen_token.yml
-  when: inventory_hostname == (groups.masters | first)
-#  environment:
-#    OPENSSL_CONF: "/tmp/k8s/easy-rsa-master/easyrsa3/openssl-1.0.cnf"
-#- command: "./make-ca-cert.sh"
-#  become: yes
-#  args:
-#    chdir: /tmp/k8s/easy-rsa-master/easyrsa3
-#  register: cacert_result
-#- debug: var=cacert_result
+  name: "copy ca.crt to {{ kube_cert_dir }}"
+
+# - include: gen_node_crt.yml
+#   when: inventory_hostname == groups['masters'][0]

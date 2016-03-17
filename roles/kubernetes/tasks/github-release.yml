@@ -1,0 +1,44 @@
+---
+- set_fact:
+    kube_relase_ver: v1.1.8
+
+- local_action:
+    file path=downloads state=directory
+
+- local_action:
+    stat path=downloads/kubernetes
+  register: kubernetes_dir
+
+- name: download Kubernetes github release
+  local_action:
+    get_url
+      url=https://github.com/kubernetes/kubernetes/releases/download/{{ kube_relase_ver }}/kubernetes.tar.gz
+      checksum=md5:b16d1039fb8cb61b012d2ae7eab7d4a9
+      dest="downloads/kubernetes-{{ kube_relase_ver }}.tar.gz"
+
+- local_action:
+    shell pwd
+  register: current_pwd
+  changed_when: false
+
+- local_action:
+    unarchive
+      src="downloads/kubernetes-{{ kube_relase_ver }}.tar.gz"
+      dest="{{ current_pwd.stdout }}/downloads"
+      copy=yes
+  when: kubernetes_dir.stat.exists == false
+
+- local_action:
+    stat path="{{ kubernetes_dir.stat.path }}/server/kubernetes/server/bin"
+  register: server_bin
+
+#- debug: var=server_bin
+- name: "extract Kubernetes binaries"
+  local_action:
+    unarchive
+      src="{{ kubernetes_dir.stat.path }}/server/kubernetes-server-linux-amd64.tar.gz"
+      dest="{{ current_pwd.stdout }}/{{ kubernetes_dir.stat.path }}/server"
+  when: server_bin.stat.exists == false
+
+- set_fact:
+    kube_binaries_dir: "{{ server_bin.stat.path }}"

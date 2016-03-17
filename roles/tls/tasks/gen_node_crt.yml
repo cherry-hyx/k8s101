@@ -1,0 +1,14 @@
+---
+
+- copy: "src=worker-openssl.cnf dest={{ kube_cert_dir }}/worker-openssl.cnf"
+
+- copy: "src=gen_node_crt.sh dest={{ kube_cert_dir }}/gen_node_crt.sh mode=0774"
+
+- command: "./gen_node_crt.sh"
+  args:
+    chdir: "{{ kube_cert_dir }}"
+    creates: "{{ kube_cert_dir }}/{{ item }}-worker.pem"
+  environment:
+    WORKER_FQDN: "{{ item }}"
+    WORKER_IP: "{{ hostvars[item]['ansible_' + private_network_iface].ipv4.address }}"
+  with_items: "{{ groups['nodes'] }}"

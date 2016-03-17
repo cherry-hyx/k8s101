@@ -2,16 +2,36 @@
 - set_fact:
     flannel_version: 0.5.5
 
-- unarchive:
-  #https://github.com/coreos/flannel/releases/download/{{ flannel_version }}/flannel-{{ flannel_version }}-linux-amd64.tar.gz
-    src: "../files/flannel-{{ flannel_version }}-linux-amd64.tar.gz"
-    dest: /usr/local
-    copy: yes
+- local_action:
+    file path=downloads state=directory
+  become: no
 
-- file:
-    src: /usr/local/flannel-{{ flannel_version }}/{{ item }}
+- name: "download flannel github release tag {{ flannel_version }}"
+  local_action:
+    get_url
+      url="https://github.com/coreos/flannel/releases/download/v{{ flannel_version }}/flannel-{{ flannel_version }}-linux-amd64.tar.gz"
+      dest="downloads/flannel-{{ flannel_version }}-linux-amd64.tar.gz"
+  become: no
+
+- local_action:
+    shell pwd
+  register: current_pwd
+  changed_when: false
+  become: no
+
+- local_action:
+    unarchive
+      src="{{ current_pwd.stdout }}/downloads/flannel-{{ flannel_version }}-linux-amd64.tar.gz"
+      dest="{{ current_pwd.stdout }}/downloads"
+      copy=yes
+      creates="{{ current_pwd.stdout }}/downloads/flannel-{{ flannel_version }}/flanneld"
+  become: no
+  name: unarchive flannel
+
+- copy:
+    src: downloads/flannel-{{ flannel_version }}/{{ item }}
     dest: /usr/local/bin/{{ item }}
-    state: link
+    mode: "0774"
   with_items:
     - "flanneld"
     - "mk-docker-opts.sh"

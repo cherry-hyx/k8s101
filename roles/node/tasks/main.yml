@@ -1,0 +1,13 @@
+---
+
+- include: "{{ item }}.yml"
+  with_items:
+    - "install"
+    - "kubelet"
+    - "kube-proxy"
+  name: copying bianries
+
+# start services
+- service: "name={{ item }} state=started"
+  with_items: "{{ node_bianries }}"
+  register: node_status

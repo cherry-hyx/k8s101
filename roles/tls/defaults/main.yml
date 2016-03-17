@@ -1,2 +1,5 @@
-master_ip: 192.168.10.80
-kube_cert_dir: /etc/kubernetes/ssl
+---
+accounts: []
+known_tokens: /var/lib/kube-apiserver/known_tokens.csv
+token_vars: /var/lib/kube-apiserver/token_vars.yml
+private_host_ipv4: "{{ hostvars[inventory_hostname]['ansible_' + private_network_iface]['ipv4']['address'] }}"

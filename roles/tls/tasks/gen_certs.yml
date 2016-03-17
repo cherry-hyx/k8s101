@@ -1,25 +1,68 @@
 ---
 - file: path=/tmp/k8s state=directory
-- unarchive: >
+  name: mkdir for download easyrsa
+- name: "downloading easyrsa from google"
+  unarchive: >
         src=https://storage.googleapis.com/kubernetes-release/easy-rsa/easy-rsa.tar.gz
         dest="/tmp/k8s"
         copy=no
         creates=/tmp/k8s/easy-rsa-master/easyrsa3
-- set_fact:
-    sans: "IP:192.168.10.80,DNS:kubernetes,DNS:kubernetes.default,DNS:kubernetes.default.svc,DNS:kubernetes.default.svc.{{ dns_domain}},DNS:{{ inventory_hostname }}"
-- debug: var=sans
-#- template: src=make-ca-cert.sh.j2 dest=/tmp/k8s/easy-rsa-master/easyrsa3/make-ca-cert.sh mode=0774
-- file: path=/tmp/k8s/easy-rsa-master/easyrsa3/pki state=absent
 
-- command: "./easyrsa {{ item }}"
+- stat: path=/tmp/k8s/easy-rsa-master/easyrsa3/pki
+  register: pki_dir
+  name: make sure crts was already generated
+
+#- file: path=/tmp/k8s/easy-rsa-master/easyrsa3/pki state=absent
+
+- set_fact:
+    sans: "IP:{{ private_host_ipv4 }},DNS:kubernetes,DNS:kubernetes.default,DNS:kubernetes.default.svc,DNS:kubernetes.default.svc.{{ dns_domain}},DNS:{{ inventory_hostname }}"
+  changed_when: false
+#- debug: var=sans
+
+- shell: "echo {{ private_host_ipv4 }}@`date +%s`"
+  register: req_cn
+  changed_when: false
+#- debug: var=req_cn
+
+- name: "generate tls cers with easyrsa"
+  command: "./easyrsa {{ item }}"
   args:
     chdir: "/tmp/k8s/easy-rsa-master/easyrsa3"
   register: easyrsa_result
   with_items:
     - "init-pki"
-    - "--batch --req-cn=\"192.168.10.80\" build-ca nopass"
+    - "--batch --req-cn={{ req_cn.stdout }} build-ca nopass"
     - "--subject-alt-name=\"{{ sans }}\" build-server-full \"{{ inventory_hostname }}\" nopass"
     - "build-client-full kubelet nopass"
     - "build-client-full kubecfg nopass"
+  when: pki_dir.stat.exists == false
 
-- debug: var=easyrsa_result
+- file: >
+    src="/tmp/k8s/easy-rsa-master/easyrsa3/pki/issued/{{ inventory_hostname }}.crt"
+    dest="{{ kube_cert_dir }}/server.crt"
+    state=link
+  name: link server.crt
+
+- file: >
+    src="/tmp/k8s/easy-rsa-master/easyrsa3/pki/private/{{ inventory_hostname }}.key"
+    dest="{{ kube_cert_dir }}/server.key"
+    state=link
+  name: link server.key
+
+# - file: >
+#     src="/tmp/k8s/easy-rsa-master/easyrsa3/pki/private/ca.key"
+#     dest="{{ kube_cert_dir }}/ca.key"
+#     state=link
+#   name: link ca.key
+
+# - file: >
+#     src="/tmp/k8s/easy-rsa-master/easyrsa3/pki/ca.crt"
+#     dest="{{ kube_cert_dir }}/ca.crt"
+#     state=link
+#   name: link ca.crt
+
+# - name: read ca.cert
+#   slurp: src="{{ kube_cert_dir }}/ca.crt"
+#   register: ca_crt
+
+#- debug: var=easyrsa_result

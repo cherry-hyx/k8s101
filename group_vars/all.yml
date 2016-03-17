@@ -2,6 +2,18 @@ dns_domain: cluster.local
 
 private_network_iface: eth1
 
+private_host_ipv4: "{{ hostvars[inventory_hostname]['ansible_' + private_network_iface]['ipv4']['address'] }}"
+
 flannel_network: "172.16.0.0/16"
 
+# A CIDR notation IP range from which to assign service cluster IPs.
+# This must not overlap with any IP ranges assigned to nodes for pods.
+service_cluster_ip_range: "10.254.0.0/16"
+
 docker_opts: ""
+
+kube_cert_dir: /etc/kubernetes/ssl
+kube_auth_dir: /etc/kubernetes/auth
+token_auth_file: "{{ kube_auth_dir }}/tokens.csv"
+
+kube_manifest_dir: /etc/kubernetes/manifests

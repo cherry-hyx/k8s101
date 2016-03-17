@@ -1,0 +1,17 @@
+---
+- set_fact: "kube_proxy_token={{ item.token }}"
+  with_items: "{{ tokens }}"
+  when: "item.name == 'kube-proxy-{{ inventory_hostname }}'"
+  name: "gather kube-proxy token"
+
+#- debug: var=kube_proxy_token
+
+- template: "src=kube-proxy.service.j2 dest=/etc/systemd/system/kube-proxy.service"
+  notify:
+    - reload systemd
+    - restart node
+
+- template: "src=kube-proxy.kubeconfig.j2 dest=/etc/kubernetes/kube-proxy.kubeconfig"
+  notify:
+    - reload systemd
+    - restart node
