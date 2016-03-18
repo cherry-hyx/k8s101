@@ -3,6 +3,7 @@
 - copy: >
     src="{{ kube_binaries_dir }}/{{ item }}"
     dest="/usr/local/bin/{{ item }}"
+    mode=0774
   with_items:
     - "kube-apiserver"
     - "kube-controller-manager"
