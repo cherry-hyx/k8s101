@@ -13,11 +13,26 @@
   name: make sure crts was already generated
 
 #- file: path=/tmp/k8s/easy-rsa-master/easyrsa3/pki state=absent
+# - shell: |
+#     EXTRA_SANS=(
+#       IP:{{private_host_ipv4}}
+#       IP:{{kube_service_ip}}
+#       DNS:kubernetes
+#       DNS:kubernetes.default
+#       DNS:kubernetes.default.svc
+#       DNS:kubernetes.default.svc.cluster.local
+#     )
+
+#     EXTRA_SANS=$(echo "${EXTRA_SANS[@]}" | tr ' ' ,)
+#     echo EXTRA_SANS
+#   register: sans
+#   changed_when: false
 
 - set_fact:
-    sans: "IP:{{ private_host_ipv4 }},DNS:kubernetes,DNS:kubernetes.default,DNS:kubernetes.default.svc,DNS:kubernetes.default.svc.{{ dns_domain}},DNS:{{ inventory_hostname }}"
+    sans: "IP:{{private_host_ipv4}},IP:{{kube_service_ip}},DNS:kubernetes,DNS:kubernetes.default,DNS:kubernetes.default.svc,DNS:kubernetes.default.svc.{{ dns_domain}},DNS:{{ inventory_hostname }}"
   changed_when: false
-#- debug: var=sans
+
+- debug: var=sans
 
 - shell: "echo {{ private_host_ipv4 }}@`date +%s`"
   register: req_cn

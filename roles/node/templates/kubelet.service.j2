@@ -8,7 +8,6 @@ RestartSec=5
 ExecStart=/usr/local/bin/kubelet --kubeconfig=/etc/kubernetes/kubelet.kubeconfig \
   --api-servers={{ kube_apiserver }} \
   --cluster-domain={{ dns_domain }} \
-  --config={{ kube_manifest_dir}} \
   --allow-privileged=true
 
 [Install]

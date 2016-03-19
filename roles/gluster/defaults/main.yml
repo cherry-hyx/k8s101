@@ -26,4 +26,6 @@ firewall_allowed_udp_ports:
   - 111
 
 # Gluster confuguration
+
+
 # vim:ft=ansible:

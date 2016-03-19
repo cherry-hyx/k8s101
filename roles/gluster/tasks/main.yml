@@ -17,13 +17,13 @@
     - "glusterfs-server"
     - "glusterfs-client"
 - wait_for: host={{ item }} port=24007 delay=5 state=drained
-  with_items: groups['glusters']
+  with_items: "{{groups['glusters']}}"
   when: item != inventory_hostname
   changed_when: false
 
 - service: name=glusterfs-server state=started enabled=yes
 - command: gluster peer probe {{ item }}
-  with_items: groups['glusters']
+  with_items: "{{groups['glusters']}}"
   when: item != inventory_hostname
   register: probe_result
   until: "{{ probe_result.stdout.find(\"peer probe: success\") != -1 }}"
@@ -31,4 +31,5 @@
   delay: 10
   changed_when: false
   name: "peer probe each others"
+  run_once: true  
 #- debug: var=probe_result

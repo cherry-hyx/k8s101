@@ -10,8 +10,6 @@
     - "kube-scheduler"
     - "kubectl"
 
-- file: path=/usr/local/bin/kubectl mode=0755
-  name: make kubectl executable
 # apiserver
 - template: src=apiserver.conf.j2 dest=/etc/kubernetes/apiserver.conf
 - copy: src=kube-apiserver.service dest=/etc/systemd/system
