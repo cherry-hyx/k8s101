@@ -2,15 +2,48 @@
 - file: path={{ kube_addons_dir }} state=directory mode=0775
 
 - get_url:
-    url="{{ item }}"
+    url="https://raw.githubusercontent.com/kubernetes/kubernetes/master/cluster/saltbase/salt/kube-addons/{{ item }}"
     dest="{{ kube_addons_dir }}/"
     force=yes
     validate_certs=no
   with_items:
-    - "https://raw.githubusercontent.com/kubernetes/kubernetes/master/cluster/saltbase/salt/kube-addons/namespace.yaml"
-    - "https://raw.githubusercontent.com/kubernetes/kubernetes/master/cluster/saltbase/salt/kube-addons/kube-addons.sh"
-    - "https://github.com/kubernetes/kubernetes/blob/master/cluster/saltbase/salt/kube-addons/kube-addon-update.sh"
+    - "namespace.yaml"
+#     - "kube-addons.sh"
+#     - "kube-addon-update.sh"
 
-- template:
-    src=kube-addons.service.j2 
-    dest=/etc/systemd/system/kube-addons.service
+# - file: path="{{ kube_addons_dir }}/{{ item }}" state=file mode=0774
+#   with_items:
+#     - "kube-addon-update.sh"
+#     - "kube-addons.sh"
+
+#- command: "kubectl get namespace"
+
+- command: kubectl get ns -o=name
+  register: kube_system_exists
+  changed_when: false
+
+- command: "kubectl create -f namespace.yaml"
+  args:
+    chdir: "/etc/kubernetes/addons"
+  when: kube_system_exists.stdout.find('kube-system') == -1
+
+- command: kubectl get no {{item}}
+  register: nodes_stat
+  with_items: "{{groups.nodes}}"
+
+- debug: "var={{item}}"
+  with_items: "{{nodes_stat.results | map(attribute='stdout') | list}}"
+  failed_when: "'Ready' not in item"
+
+- include: skydns.yml
+
+# - template:
+#     src=kube-addons.service.j2 
+#     dest=/etc/systemd/system/kube-addons.service
+#     mode=0664
+  # notify:
+  #   - reload systemd
+  #   - restart kube-addons
+
+# - name: enable and start kube-addons service
+#   service: name=kube-addons enabled=yes state=started

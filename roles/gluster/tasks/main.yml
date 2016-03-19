@@ -28,7 +28,7 @@
   register: probe_result
   until: "{{ probe_result.stdout.find(\"peer probe: success\") != -1 }}"
   retries: 3
-  delay: 10
+  delay: 5
   changed_when: false
   name: "peer probe each others"
   run_once: true  

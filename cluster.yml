@@ -19,8 +19,8 @@
   become: yes
   roles:
     - master
-    - "kube-addons"
   tags:
+    - k8s
     - masters
 
 - hosts:
@@ -29,7 +29,17 @@
   roles:
     - node
   tags:
+    - k8s
     - join
+
+- hosts: masters
+  become: yes
+  roles:
+    - "kube-addons"
+  tags:
+    - masters
+    - k8s
+    - addons
 
 - hosts: glusters
   become: yes

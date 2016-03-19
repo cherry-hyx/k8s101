@@ -6,7 +6,8 @@ Documentation=https://github.com/kubernetes/kubernetes/tree/master/cluster/saltb
 Environment="TOKEN_DIR={{ kube_auth_dir }}"
 Environment="CA_CERT={{ kube_cert_dir }}/ca.crt"
 Environment="KUBERNETES_MASTER_NAME={{ kube_apiserver }}"
-ExecStart=/etc/kubernetes/kube-addons.sh
+Environment="TRUSTY_MASTER=true"
+ExecStart={{ kube_addons_dir }}/kube-addons.sh
 
 [Install]
 WantedBy=multi-user.target

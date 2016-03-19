@@ -1,0 +1,7 @@
+---
+- name: reload systemd
+  command: "systemctl daemon-reload"
+#  register: reload_result
+
+- name: restart kube-addons
+  service: "name=kube-addons state=restarted"

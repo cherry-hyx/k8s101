@@ -56,8 +56,8 @@
     - restart master
   name: "setup scheduler.kubeconfig"
 
-# start services
-- service: "name={{ item }} state=started"
+# enable services
+- service: "name={{ item }} enabled=yes"
   with_items:
     - "kube-apiserver"
     - "kube-controller-manager"

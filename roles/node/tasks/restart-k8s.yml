@@ -1,0 +1,21 @@
+---
+- debug: msg="{{inventory_hostname}} is absent"
+
+- service: "name={{ item }} state=restarted"
+  with_items:
+    - "kube-apiserver"
+    - "kube-controller-manager"
+    - "kube-scheduler"
+  delegate_to: "{{groups.masters[0]}}"
+  run_once: true
+
+- service: "name={{ item }} state=restarted"
+  with_items: "{{ node_bianries }}"
+  delay: 10
+
+- command: "kubectl get no {{inventory_hostname}}"
+  delegate_to: "{{groups['masters'][0]}}"
+  register: node_stat2
+  failed_when: "'Ready' not in node_stat2.stdout"
+  delay: 10
+  name: "recheck node is ready"
