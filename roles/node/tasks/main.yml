@@ -21,11 +21,13 @@
   delegate_to: "{{groups.masters[0]}}"
   run_once: true
 
+- pause: seconds=10
 
 # start services
 - service: "name={{ item }} state=started enabled=yes"
   with_items: "{{ node_bianries }}"
-  delay: 10
+
+- pause: seconds=10
 
 # health check
 - command: "kubectl get no {{inventory_hostname}}"
@@ -33,9 +35,10 @@
   delegate_to: "{{groups['masters'][0]}}"
   name: "kubectl get no {{inventory_hostname}}"
   changed_when: "'Ready' not in node_stat.stdout"
+  ignore_errors: true
 
 - set_fact:
-    node_absent: "{{'Ready' not in node_stat.stdout}}"
+    node_absent: "{{ (node_stat.rc != 0) or ('Ready' not in node_stat.stdout)}}"
 
 - include: "restart-k8s.yml"
   when: node_absent
