@@ -27,5 +27,8 @@
     dest={{ kube_cert_dir }}/ca.crt
   name: "copy ca.crt to {{ kube_cert_dir }}"
 
+- lineinfile: dest="{{known_basic_auth}}" regexp=admin,admin line="admin,admin,admin" create=yes
+  delegate_to: "{{ groups['masters'][0] }}"
+
 # - include: gen_node_crt.yml
 #   when: inventory_hostname == groups['masters'][0]

@@ -18,6 +18,7 @@ docker_opts: "--insecure-registry gcr.io"
 kube_cert_dir: /etc/kubernetes/ssl
 kube_auth_dir: /etc/kubernetes/auth
 known_tokens: "{{ kube_auth_dir }}/known_tokens.csv"
+known_basic_auth: "{{ kube_auth_dir }}/known_basic_auth.csv"
 
 kube_manifest_dir: /etc/kubernetes/manifests
 kube_addons_dir: /etc/kubernetes/addons
