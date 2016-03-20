@@ -20,7 +20,10 @@ vagrant provision
 ```
 ansible-playbook cluster.yml
 ```
-##step by step
+###open kubernetes-dashboard
+- login [kubernetes-dashboard](https://10.168.10.80/api/v1/proxy/namespaces/kube-system/services/kubernetes-dashboard) with admin/admin 
+
+##teaerdown playbook
 ###install etcd on master
 ```
 ansible-playbook cluster.yml --tags=etcd
