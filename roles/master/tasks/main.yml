@@ -64,4 +64,25 @@
     - "kube-scheduler"
   register: kube_status
 
+- local_action:
+    shell pwd
+  register: local_current_dir
+  changed_when: false
+  become: no
+
+- local_action:
+    template
+      src=kubectl.kubeconfig.j2
+      dest="./kubectl.kubeconfig"
+  become: no
+
+- local_action: 
+    shell
+      kubectl config set-cluster default-cluster --server={{kube_apiserver}} --certificate-authority=ca.crt;
+      kubectl config set-credentials default-admin --certificate-authority=ca.crt --client-key=kubecfg.key --client-certificate=kubecfg.crt;
+      kubectl config set-context default-system --cluster=default-cluster --user=default-admin;
+      kubectl config use-context default-system;
+  name: "set host admin kubectl"
+  become: no
+
 #- debug: var=kube_status

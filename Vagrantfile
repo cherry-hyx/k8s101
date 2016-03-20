@@ -38,7 +38,7 @@ Vagrant.configure(2) do |config|
     nodes.push(name)
     config.vm.define "#{name}" do |n|
       n.vm.hostname = name
-      n.vm.network "private_network", ip: "192.168.10.#{10+i}"
+      n.vm.network "private_network", ip: "10.168.10.#{10+i}", :netmask => "255.255.255.0"
       n.vm.provider :virtualbox do |vb, override|
         set_vbox(vb, override, 512)
       end
@@ -53,7 +53,7 @@ Vagrant.configure(2) do |config|
     config.vm.define "#{name}" do |machine|
       machine.vm.hostname = name
 #     machine.vm.box = "geerlingguy/ubuntu1404"
-      machine.vm.network "private_network", ip: "192.168.20.#{10+i}"
+      machine.vm.network "private_network", ip: "10.168.10.#{100+i}", :netmask => "255.255.255.0"
       machine.vm.provider :virtualbox do |vb, override|
         set_vbox(vb, override, 256)
       end
@@ -70,7 +70,7 @@ Vagrant.configure(2) do |config|
 
   config.vm.define "kube-master" do |n|
     n.vm.hostname = "kube-master"
-    n.vm.network "private_network", ip: "192.168.10.80"
+    n.vm.network "private_network", ip: "10.168.10.80", :netmask => "255.255.255.0"
     n.vm.provider :virtualbox do |vb, override|
       set_vbox(vb, override, 1024)
     end
