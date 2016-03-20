@@ -6,7 +6,9 @@
   tags:
     - etcd
 
-- hosts: nodes
+- hosts:
+    - nodes
+    - masters
   become: yes
   roles:
     - docker

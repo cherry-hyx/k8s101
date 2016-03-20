@@ -37,6 +37,8 @@
 
 - include: skydns.yml
 
+- include: dashboard.yml
+
 # - template:
 #     src=kube-addons.service.j2 
 #     dest=/etc/systemd/system/kube-addons.service
