@@ -8,6 +8,7 @@
     - "kube-apiserver"
     - "kube-controller-manager"
     - "kube-scheduler"
+    - "kube-proxy"
     - "kubectl"
 
 # apiserver
@@ -56,13 +57,16 @@
     - restart master
   name: "setup scheduler.kubeconfig"
 
+# kube-proxy
+- template: src=kube-proxy.service.j2 dest=/etc/systemd/system/kube-proxy.service
+
 # enable services
 - service: "name={{ item }} enabled=yes"
   with_items:
     - "kube-apiserver"
     - "kube-controller-manager"
     - "kube-scheduler"
-  register: kube_status
+    - "kube-proxy"
 
 - local_action:
     shell pwd

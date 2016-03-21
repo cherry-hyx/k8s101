@@ -18,6 +18,7 @@
   with_items:
     - "apt-transport-https"
     - "ca-certificates"
+    - "bridge-utils"
 
 - apt_key:
     keyserver: hkp://p80.pool.sks-keyservers.net:80

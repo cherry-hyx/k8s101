@@ -1,6 +1,6 @@
 ---
 - set_fact: 
-    etcd_version: "v2.2.1"
+    etcd_version: "v2.0.12"
 
 - local_action:
     file path=downloads state=directory

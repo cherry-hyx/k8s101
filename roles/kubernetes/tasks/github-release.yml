@@ -39,7 +39,7 @@
   local_action:
     unarchive
       src="downloads/kubernetes/server/kubernetes-server-linux-amd64.tar.gz"
-      dest="{{ current_pwd.stdout }}/downloads/kubernetes/server"
+      dest="{{ current_pwd.stdout }}/{{ kubernetes_dir.stat.path }}/server"
   when: server_bin.stat.exists == false
   run_once: true
 

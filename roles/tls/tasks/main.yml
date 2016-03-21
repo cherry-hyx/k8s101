@@ -18,7 +18,7 @@
   when: inventory_hostname == groups['masters'][0]
 
 - name: read ca.crt
-  slurp: src=/tmp/k8s/easy-rsa-master/easyrsa3/pki/ca.crt
+  slurp: src=/usr/k8s/easy-rsa-master/easyrsa3/pki/ca.crt
   register: ca_crt
   delegate_to: "{{ groups['masters'][0] }}"
 

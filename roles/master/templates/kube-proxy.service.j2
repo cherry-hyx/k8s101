@@ -1,0 +1,13 @@
+[Unit]
+Description=Kubernetes kube-proxy
+After=network.target
+
+[Service]
+Restart=on-failure
+RestartSec=5
+ExecStart=/usr/local/bin/kube-proxy --bind-address={{ private_host_ipv4 }} \
+  --v=2
+  --master=http://127.0.0.1:8080
+
+[Install]
+WantedBy=multi-user.target
