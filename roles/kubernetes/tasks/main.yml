@@ -6,18 +6,21 @@
 - set_fact:
     kube_apiserver: "{% for master in groups['masters'] %}https://{{ hostvars[master]['ansible_' + private_network_iface].ipv4.address }}:{{ kube_api_secure_port }}{% if not loop.last %},{% endif %}{% endfor %}"
 
-- shell: |
-    /bin/sh -c "uname -a | grep  -i darwin || true"
+- local_action: 
+    shell
+      /bin/sh -c "uname -a | grep -i darwin || true"
   register: darwin
   name: osx verifying
+  become: no
 
-# - local_action:
-#     shell
-#       src="{{server_bin.stat.path}}/kubectl"
-#       dest=/usr/local/bin/kubectl
-#       mode=u+x
-#   become: no
-#   when: darwin.stdout == ""
+- debug: var=darwin
+
+- local_action:
+    shell
+      cp {{server_bin.stat.path}}/kubectl /usr/local/bin/kubectl;
+      chmod +x /usr/local/bin/kubectl;
+  become: no
+  when: darwin.stdout == ""
 
 - local_action:
     shell
@@ -26,3 +29,4 @@
         chmod +x /usr/local/bin/kubectl;
       fi
   when: darwin.stdout != ""
+  become: no
