@@ -12,6 +12,7 @@
       url="https://github.com/coreos/flannel/releases/download/v{{ flannel_version }}/flannel-{{ flannel_version }}-linux-amd64.tar.gz"
       dest="downloads/flannel-{{ flannel_version }}-linux-amd64.tar.gz"
   become: no
+  run_once: true
 
 - local_action:
     shell pwd
@@ -27,6 +28,7 @@
       creates="{{ current_pwd.stdout }}/downloads/flannel-{{ flannel_version }}/flanneld"
   become: no
   name: unarchive flannel
+  run_once: true
 
 - copy:
     src: downloads/flannel-{{ flannel_version }}/{{ item }}

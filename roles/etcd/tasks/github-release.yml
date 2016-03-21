@@ -1,6 +1,6 @@
 ---
 - set_fact: 
-    etcd_version: "v2.0.12"
+    etcd_version: "v2.2.1"
 
 - local_action:
     file path=downloads state=directory
@@ -12,6 +12,7 @@
       url="https://github.com/coreos/etcd/releases/download/{{ etcd_version }}/etcd-{{ etcd_version }}-linux-amd64.tar.gz"
       dest="downloads/etcd-{{ etcd_version }}-linux-amd64.tar.gz"
   become: no
+  run_once: true
 
 - local_action:
     shell pwd
@@ -25,6 +26,7 @@
       dest="{{ current_pwd.stdout }}/downloads"
       copy=yes
   become: no
+  run_once: true
 #- name: create download dir
 #  file: "path={{ etcd_download_dir }} state=directory"
 
