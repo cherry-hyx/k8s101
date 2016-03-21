@@ -1,6 +1,6 @@
 ---
 - name: reload systemd
-  command: systemctl --system daemon-reload
+  command: systemctl daemon-reload
 
 - name: restart flanneld
   service: name=flanneld state=restarted
@@ -12,10 +12,6 @@
   service: name=docker state=stopped
   when: '"docker0" in ansible_interfaces'
 
-- name: delete docker0 iface
-  command: ip link delete docker0
-  when: '"docker0" in ansible_interfaces'
-
 - name: start docker again
   service: name=docker state=started
 
@@ -23,5 +19,4 @@
   command: /bin/true
   notify:
     - stop docker
-    - delete docker0 iface
     - start docker again
