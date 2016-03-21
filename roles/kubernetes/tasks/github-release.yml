@@ -13,7 +13,7 @@
   local_action:
     get_url
       url=https://github.com/kubernetes/kubernetes/releases/download/{{ kube_relase_ver }}/kubernetes.tar.gz
-      checksum=md5:c0ce9e6150e9d7a19455db82f3318b4c
+      checksum=md5:b16d1039fb8cb61b012d2ae7eab7d4a9
       dest="downloads/kubernetes-{{ kube_relase_ver }}.tar.gz"
   run_once: true
 
